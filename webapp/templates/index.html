@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cat or Dog?</title>
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --card: #ffffff;
+    --ink: #23211d;
+    --muted: #6f6b62;
+    --accent: #d97a4d;
+    --accent-dark: #b85f37;
+    --border: #e7e2d8;
+    --cat: #7c9885;
+    --dog: #d97a4d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+  }
+  h1 {
+    font-size: 1.6rem;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+  p.sub {
+    color: var(--muted);
+    margin: 0 0 28px;
+    font-size: 0.95rem;
+  }
+  .dropzone {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    position: relative;
+  }
+  .dropzone.dragover {
+    border-color: var(--accent);
+    background: #fdf3ec;
+  }
+  .dropzone svg { opacity: 0.5; margin-bottom: 8px; }
+  .dropzone .hint { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+  input[type="file"] { display: none; }
+  #preview {
+    max-width: 100%;
+    max-height: 220px;
+    border-radius: 10px;
+    display: none;
+    margin: 0 auto 16px;
+  }
+  button.predict-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  button.predict-btn:hover { background: var(--accent-dark); }
+  button.predict-btn:disabled {
+    background: #d8d3c8;
+    cursor: not-allowed;
+  }
+  #result {
+    margin-top: 24px;
+    display: none;
+  }
+  .result-label {
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .result-conf {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 18px;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+  .bar-label { width: 40px; color: var(--muted); }
+  .bar-track {
+    flex: 1;
+    background: #eee9de;
+    border-radius: 6px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.4s ease;
+  }
+  .bar-fill.cat { background: var(--cat); }
+  .bar-fill.dog { background: var(--dog); }
+  .bar-pct { width: 44px; text-align: right; color: var(--muted); }
+  #error {
+    display: none;
+    margin-top: 16px;
+    color: #b3413a;
+    background: #fdeceb;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+  }
+  .notice {
+    display: none;
+    margin-top: 16px;
+    background: #fdf6e8;
+    color: #8a6a20;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>🐱 Cat or Dog? 🐶</h1>
+    <p class="sub">Upload a photo and let a small CNN, trained from scratch, decide.</p>
+
+    <div class="dropzone" id="dropzone">
+      <img id="preview" />
+      <div id="dzContent">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 16.5A3.5 3.5 0 0016.5 13H15a5 5 0 10-9.9 1.1A3.5 3.5 0 006.5 21h11a4 4 0 002.5-1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div>Click or drag an image here</div>
+        <div class="hint">JPG or PNG, up to 8MB</div>
+      </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" />
+
+    <button class="predict-btn" id="predictBtn" disabled>Upload an image first</button>
+
+    <div id="result">
+      <div class="result-label" id="resultLabel"></div>
+      <div class="result-conf" id="resultConf"></div>
+      <div class="bar-row">
+        <div class="bar-label">Cat</div>
+        <div class="bar-track"><div class="bar-fill cat" id="catBar" style="width:0%"></div></div>
+        <div class="bar-pct" id="catPct">0%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Dog</div>
+        <div class="bar-track"><div class="bar-fill dog" id="dogBar" style="width:0%"></div></div>
+        <div class="bar-pct" id="dogPct">0%</div>
+      </div>
+    </div>
+
+    <div id="error"></div>
+    <div class="notice" id="notice">The model is still training — predictions will be available once it's ready. This page will keep checking automatically.</div>
+  </div>
+
+<script>
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const preview = document.getElementById('preview');
+const dzContent = document.getElementById('dzContent');
+const predictBtn = document.getElementById('predictBtn');
+const result = document.getElementById('result');
+const errorBox = document.getElementById('error');
+const notice = document.getElementById('notice');
+let modelReady = {{ 'true' if model_ready else 'false' }};
+let selectedFile = null;
+
+function updateButtonState() {
+  if (!modelReady) {
+    predictBtn.disabled = true;
+    predictBtn.textContent = 'Model still training…';
+    notice.style.display = 'block';
+  } else if (!selectedFile) {
+    predictBtn.disabled = true;
+    predictBtn.textContent = 'Upload an image first';
+    notice.style.display = 'none';
+  } else {
+    predictBtn.disabled = false;
+    predictBtn.textContent = 'Identify';
+    notice.style.display = 'none';
+  }
+}
+
+async function pollStatus() {
+  if (modelReady) return;
+  try {
+    const res = await fetch('/status');
+    const data = await res.json();
+    if (data.model_ready) {
+      modelReady = true;
+      updateButtonState();
+    } else {
+      setTimeout(pollStatus, 5000);
+    }
+  } catch (e) {
+    setTimeout(pollStatus, 5000);
+  }
+}
+pollStatus();
+updateButtonState();
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropzone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files.length) handleFile(e.target.files[0]);
+});
+
+function handleFile(file) {
+  if (!file.type.startsWith('image/')) return;
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    dzContent.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+  result.style.display = 'none';
+  errorBox.style.display = 'none';
+  updateButtonState();
+}
+
+predictBtn.addEventListener('click', async () => {
+  if (!selectedFile) return;
+  predictBtn.disabled = true;
+  predictBtn.textContent = 'Thinking…';
+  errorBox.style.display = 'none';
+
+  const formData = new FormData();
+  formData.append('image', selectedFile);
+
+  try {
+    const res = await fetch('/predict', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Something went wrong.');
+    }
+    document.getElementById('resultLabel').textContent =
+      (data.label === 'Dog' ? '🐶 ' : '🐱 ') + data.label;
+    document.getElementById('resultConf').textContent =
+      `${data.confidence}% confident`;
+    document.getElementById('catBar').style.width = data.cat_probability + '%';
+    document.getElementById('dogBar').style.width = data.dog_probability + '%';
+    document.getElementById('catPct').textContent = data.cat_probability + '%';
+    document.getElementById('dogPct').textContent = data.dog_probability + '%';
+    result.style.display = 'block';
+  } catch (err) {
+    errorBox.textContent = err.message;
+    errorBox.style.display = 'block';
+  } finally {
+    updateButtonState();
+  }
+});
+</script>
+</body>
+</html>
