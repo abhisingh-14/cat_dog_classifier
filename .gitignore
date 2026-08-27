@@ -4,3 +4,15 @@ __pycache__/
 *.pyc
 webapp/static/uploads/*
 !webapp/static/uploads/.gitkeep
+
+# IDE and Assistant directories
+.claude/
+.vscode/
+
+# Training artifacts
+train_state.json
+*.log
+
+# Environment variables
+.env
+.DS_Store
