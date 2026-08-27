@@ -2,3 +2,4 @@ tensorflow-cpu
 flask
 pillow
 numpy
+streamlit

@@ -4,19 +4,20 @@ import time
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
-DATA_DIR = "/home/claude/dataset_repo/data"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "data")
 TRAIN_DIR = os.path.join(DATA_DIR, "train")
 TEST_DIR = os.path.join(DATA_DIR, "test")
 IMG_SIZE = (64, 64)
 BATCH_SIZE = 64
 EPOCHS_TOTAL = 8
 
-MODEL_PATH = "/home/claude/cat_dog_model.keras"       # resume checkpoint (latest weights)
-BEST_MODEL_PATH = "/home/claude/cat_dog_model_best.keras"  # best-val-accuracy weights (served to app)
-STATE_PATH = "/home/claude/train_state.json"
-CLASS_NAMES_PATH = "/home/claude/class_names.json"
-TRAIN_CACHE = "/home/claude/tfcache_train"
-VAL_CACHE = "/home/claude/tfcache_val"
+MODEL_PATH = os.path.join(BASE_DIR, "cat_dog_model.keras")       # resume checkpoint (latest weights)
+BEST_MODEL_PATH = os.path.join(BASE_DIR, "cat_dog_model_best.keras")  # best-val-accuracy weights (served to app)
+STATE_PATH = os.path.join(BASE_DIR, "train_state.json")
+CLASS_NAMES_PATH = os.path.join(BASE_DIR, "class_names.json")
+TRAIN_CACHE = os.path.join(BASE_DIR, "tfcache_train")
+VAL_CACHE = os.path.join(BASE_DIR, "tfcache_val")
 
 
 def log(msg):
