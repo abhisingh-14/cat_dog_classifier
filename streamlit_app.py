@@ -5,7 +5,7 @@ import tensorflow as tf
 import json
 import os
 
-st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐱🐶", layout="centered")
+st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐱", layout="centered")
 
 # Custom CSS for better aesthetics
 st.markdown("""

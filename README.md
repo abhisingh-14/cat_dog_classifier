@@ -1,5 +1,7 @@
 # Cat vs Dog Classifier
 
+[Live App View](https://catordogidentifier.streamlit.app/)
+
 A minimal web app that identifies whether an uploaded photo shows a cat or a dog,
 using a compact convolutional neural network trained **from scratch** (no pretrained
 ImageNet weights) on ~20,000 images.
