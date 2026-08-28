@@ -1,5 +1,4 @@
-tensorflow-cpu
-flask
+tensorflow
 pillow
 numpy
 streamlit
